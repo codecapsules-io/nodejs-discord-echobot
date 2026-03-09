@@ -1,22 +1,29 @@
-const Discord = require('discord.js'); //import client from discord
+const { Client, GatewayIntentBits } = require('discord.js');
+const express = require('express');
 
-const client = new Discord.Client();
+const app = express();
+app.get('/', (req, res) => res.send('Discord bot is running'));
+app.listen(process.env.PORT || 3000);
+
+const client = new Client({
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent,
+  ],
+});
 
 client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
 });
 
-client.on('message', msg => {
-    // check if message isn't from us
-    if (msg.author == client.user) {
-      return;
-    }
-    else if (msg.content === 'ping') {
-      msg.reply('Pong!');
-    }
-    else {
-        msg.reply(msg.content);
-    }
+client.on('messageCreate', msg => {
+  if (msg.author.bot) return;
+  if (msg.content === 'ping') {
+    msg.reply('Pong!');
+  } else {
+    msg.reply(msg.content);
+  }
 });
 
-client.login(process.env.TOKEN); //login bot using token
+client.login(process.env.TOKEN);
